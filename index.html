@@ -311,7 +311,52 @@
         { en: "It's great!", ja: 'すごくいいですね！' },
         { en: 'Have a nice day!', ja: 'よい一日を！' },
         { en: 'See you later!', ja: 'またあとで！' },
-        { en: 'Could I have ～, please?', ja: '～をいただけますか？' }
+        { en: 'Could I have ～, please?', ja: '～をいただけますか？' },
+        { en: "Let's eat.", ja: 'いただきます。' },
+        { en: 'Welcome home.', ja: 'おかえり。' },
+        { en: "I'm home.", ja: 'ただいま。' },
+        { en: "I'm off.", ja: 'いってきます。' },
+        { en: 'Cut it.', ja: '切って。' },
+        { en: 'Slice it.', ja: '薄く切って。' },
+        { en: 'Chop it.', ja: 'ざくざく切って。' },
+        { en: 'Peel it.', ja: '皮をむいて。' },
+        { en: 'Cook it.', ja: '火を通して。' },
+        { en: 'Fry it.', ja: '焼いて・炒めて。' },
+        { en: 'Boil it.', ja: 'ゆでて。' },
+        { en: 'Stir it.', ja: '混ぜて。' },
+        { en: 'Add salt.', ja: '塩を入れて。' },
+        { en: 'Add some water.', ja: '水を少し入れて。' },
+        { en: 'Taste it.', ja: '味見して。' },
+        { en: "It's ready.", ja: 'できた。' },
+        { en: 'Looks good.', ja: 'いい感じ。' },
+        { en: 'Wash it.', ja: '洗って。' },
+        { en: 'Rinse it.', ja: 'すすいで。' },
+        { en: 'Wash the vegetables.', ja: '野菜を洗って。' },
+        { en: 'Rinse the rice.', ja: 'お米を洗って。' },
+        { en: 'Wash it well.', ja: 'しっかり洗って。' },
+        { en: 'Wash the dishes.', ja: '皿を洗って。' },
+        { en: 'Rinse the plate.', ja: '皿をすすいで。' },
+        { en: 'Wash your hands.', ja: '手を洗って。' },
+        { en: "I'll check.", ja: '確認します。' },
+        { en: 'Just a moment.', ja: '少々お待ちください。' },
+        { en: 'I see.', ja: 'なるほど。' },
+        { en: 'Got it.', ja: '了解です。' },
+        { en: "I'm working on it.", ja: '対応中です。' },
+        { en: "It's done.", ja: '終わりました。' },
+        { en: "I'll fix it.", ja: '修正します。' },
+        { en: "I'll restart it.", ja: '再起動します。' },
+        { en: "I'll investigate.", ja: '調査します。' },
+        { en: "There's an issue.", ja: '問題があります。' },
+        { en: 'I found the cause.', ja: '原因がわかりました。' },
+        { en: "It's fixed.", ja: '解決しました。' },
+        { en: 'Can you check?', ja: '確認してもらえますか？' },
+        { en: 'Please try again.', ja: 'もう一度試してください。' },
+        { en: 'Let me confirm.', ja: '確認させてください。' },
+        { en: 'Would you like me to take a photo?', ja: '写真を撮りましょうか？' },
+        { en: 'Would you like me to help you?', ja: 'お手伝いしましょうか？' },
+        { en: 'Would you like me to open the door?', ja: 'ドアを開けましょうか？' },
+        { en: 'Would you like me to carry your bag?', ja: 'バッグを持ちましょうか？' },
+        { en: 'Just a moment, please.', ja: 'ちょっと待ってください。' }
       ];
       const $ = id => document.getElementById(id);
       const saved = (() => { try { return JSON.parse(localStorage.getItem('cruiseEnglishSentences') || '[]'); } catch { return []; } })();
@@ -368,7 +413,22 @@
         "i'm": ['代名詞＋be動詞', '私は～です'], 'japan': ['固有名詞', '日本'], 'your': ['所有格', 'あなたの'],
         'first': ['形容詞', '初めての'], 'cruise': ['名詞', 'クルーズ'], 'enjoying': ['動詞', '楽しんでいる'],
         "it's": ['代名詞＋be動詞', 'それは～です'], 'great': ['形容詞', 'すばらしい'], 'nice': ['形容詞', 'よい'],
-        'day': ['名詞', '一日'], 'later': ['副詞', 'あとで']
+        'day': ['名詞', '一日'], 'later': ['副詞', 'あとで'], "let's": ['代名詞＋助動詞', '～しましょう'],
+        'eat': ['動詞', '食べる'], 'welcome': ['間投詞', 'おかえりなさい'], 'home': ['副詞', '家に／家へ'],
+        'off': ['副詞', '出かけて'], 'cut': ['動詞', '切る'], 'slice': ['動詞', '薄く切る'],
+        'chop': ['動詞', 'ざくざく切る'], 'peel': ['動詞', '皮をむく'], 'cook': ['動詞', '火を通す'],
+        'fry': ['動詞', '焼く／炒める'], 'boil': ['動詞', 'ゆでる'], 'stir': ['動詞', '混ぜる'],
+        'add': ['動詞', '加える'], 'salt': ['名詞', '塩'], 'taste': ['動詞', '味見する'],
+        'ready': ['形容詞', '準備ができた'], 'looks': ['動詞', '～に見える'], 'wash': ['動詞', '洗う'],
+        'rinse': ['動詞', 'すすぐ'], 'vegetables': ['名詞', '野菜'], 'rice': ['名詞', '米'],
+        'well': ['副詞', 'しっかり'], 'dishes': ['名詞', '食器'], 'plate': ['名詞', '皿'],
+        'hands': ['名詞', '手'], 'check': ['動詞', '確認する'], 'moment': ['名詞', '少しの間'],
+        'got': ['動詞', '理解した'], 'done': ['形容詞', '完了した'], 'fix': ['動詞', '修正する'],
+        'restart': ['動詞', '再起動する'], 'investigate': ['動詞', '調査する'], 'an': ['冠詞', '1つの'],
+        'issue': ['名詞', '問題'], 'found': ['動詞', '見つけた'], 'cause': ['名詞', '原因'],
+        'fixed': ['形容詞', '修正された'], 'try': ['動詞', '試す'], 'let': ['動詞', '～させる'],
+        'confirm': ['動詞', '確認する'], 'would': ['助動詞', '～しましょうか'], 'like': ['動詞', '望む'],
+        'photo': ['名詞', '写真'], 'carry': ['動詞', '持つ／運ぶ'], 'bag': ['名詞', 'バッグ']
       };
       const wordOverrides = {
         'What does that mean?': [
@@ -393,6 +453,8 @@
         if (/^Could you\b/.test(en)) return ['Could + you + 動詞の原形 ...?', '相手に丁寧にお願いする形です。助動詞 could の後ろは動詞の原形になります。'];
         if (/^Can I\b/.test(en)) return ['Can + I + 動詞の原形 ...?', '許可や注文を伝える形です。can の後ろは動詞の原形を置きます。'];
         if (/^Can we\b/.test(en)) return ['Can + we + 動詞の原形 ...?', '「私たちは～してもよいですか」と許可を尋ねる形です。'];
+        if (/^Can you\b/.test(en)) return ['Can + you + 動詞の原形 ...?', '相手に依頼する疑問文です。can の後ろは動詞の原形を置きます。'];
+        if (/^Would you like me to\b/.test(en)) return ['Would you like + 人 + to + 動詞の原形?', '「私が～しましょうか」と丁寧に申し出る定番表現です。to の後ろは動詞の原形になります。'];
         if (/^Do you\b/.test(en)) return ['Do + you + 動詞の原形 ...?', '一般動詞の疑問文です。Do を文頭に置き、後ろの動詞は原形にします。'];
         if (/^Does this\b/.test(en)) return ['Does + this + 動詞の原形 ...?', 'this を主語にした一般動詞の疑問文です。does の後ろは go のように原形を使います。'];
         if (/^Is (this|it)\b/.test(en)) return ['Is + 主語 + 補語 ...?', 'be動詞を文頭に出して「～ですか」と確認する疑問文です。'];
@@ -401,9 +463,17 @@
         if (/^What (do|is)\b/.test(en)) return ['What + 疑問文の語順?', 'What を文頭に置き、物事や内容について尋ねる表現です。'];
         if (/^I don't\b/.test(en)) return ['主語 + do not + 動詞の原形', '一般動詞を否定するときは do not を使い、その後ろを動詞の原形にします。'];
         if (/^I can't\b/.test(en)) return ['主語 + cannot + 動詞の原形', '「～できません」という表現です。can の否定形の後ろは動詞の原形です。'];
-        if (/^I'll\b/.test(en)) return ['主語 + will + 動詞の原形', "I'll は I will の短縮形です。注文では「～にします」という意思を自然に伝えられます。"];
-        if (/^I'm\b/.test(en)) return ['主語 + be動詞 + 補語', "I'm は I am の短縮形です。出身や自分の状態を説明するときに使います。"];
-        if (/^There's\b/.test(en)) return ['There is + 名詞 ...', "There's は There is の短縮形で、「～があります」と問題や物の存在を伝えます。"];
+        if (/^Let's\b/.test(en)) return ["Let's + 動詞の原形", "Let's は Let us の短縮形で、「一緒に～しましょう」と誘う表現です。"]; 
+        if (/^Let me\b/.test(en)) return ['Let me + 動詞の原形', '「私に～させてください」という形で、自分が行うことを丁寧に申し出ます。'];
+        if (/^Please\b/.test(en)) return ['Please + 動詞の原形 ...', '相手に依頼するときの形です。please の後ろは動詞の原形を置きます。'];
+        if (/^(Cut|Slice|Chop|Peel|Cook|Fry|Boil|Stir|Add|Taste|Wash|Rinse)\b/.test(en)) return ['動詞の原形 + 目的語', '主語を省略して動詞の原形から始める命令文です。料理や作業の指示によく使います。'];
+        if (/^I'll\b/.test(en)) return ['主語 + will + 動詞の原形', "I'll は I will の短縮形です。注文では「～にします」という意思を自然に伝えられます。"]; 
+        if (/^I'm\b/.test(en)) return ['主語 + be動詞 + 補語', "I'm は I am の短縮形です。出身や自分の状態を説明するときに使います。"]; 
+        if (/^It's\b/.test(en)) return ['It + be動詞 + 補語', "It's は It is の短縮形です。状態や完了した結果を簡潔に伝えます。"]; 
+        if (/^Looks\b/.test(en)) return ['Looks + 形容詞', '主語の it が省略された会話表現で、「～に見える」という印象を伝えます。'];
+        if (/^There's\b/.test(en)) return ['There is + 名詞 ...', "There's は There is の短縮形で、「～があります」と問題や物の存在を伝えます。"]; 
+        if (/^I found\b/.test(en)) return ['主語 + 過去形 + 目的語', 'found は find の過去形です。「見つけました／わかりました」と結果を伝えます。'];
+        if (/^(I see|Got it|Welcome home)\b/.test(en)) return ['会話で使う定型表現', '短い形のまま覚えると、状況への理解やあいさつを自然に伝えられます。'];
         if (/^(My|This|It|I think)\b/.test(en)) return ['主語 + 動詞／be動詞 + ...', '英語の基本語順は「主語のあとに動詞」です。まず誰・何についての文かを確認しましょう。'];
         if (/^(Excuse me|Thank you|Good morning|Hi|Have a nice day|See you later|No ice|Just water|A table)\b/.test(en)) return ['会話で使う定型表現', '短い形のまま覚えると、必要な場面ですぐに口から出しやすくなります。'];
         return ['疑問詞／助動詞 + 主語 + 動詞 ...', '語順と動詞の形に注目して、文全体をひとかたまりで覚えましょう。'];
