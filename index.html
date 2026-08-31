@@ -94,6 +94,38 @@
     }
     .speed-control select:focus { outline: 3px solid rgba(8,126,139,.12); border-color: var(--ocean); }
 
+    .grammar-area { margin: 0 20px 18px; }
+    .grammar-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .grammar-toggle { flex: 1; min-width: 150px; }
+    .pos-option {
+      display: none; align-items: center; gap: 8px; min-height: 46px; padding: 8px 12px;
+      color: var(--muted); background: #f7faf9; border: 1px solid var(--line);
+      border-radius: 12px; font-size: 13px; font-weight: 750;
+    }
+    .pos-option.visible { display: flex; }
+    .pos-option input { width: 18px; height: 18px; min-height: 0; margin: 0; accent-color: var(--ocean); }
+    .grammar-panel { margin-top: 12px; border: 1px solid var(--line); border-radius: 16px; background: white; overflow: hidden; }
+    .grammar-panel[hidden] { display: none; }
+    .grammar-scroll { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+    .grammar-grid { display: flex; min-width: max-content; }
+    .grammar-word {
+      display: grid; grid-template-rows: minmax(48px, auto) minmax(46px, auto) minmax(48px, auto);
+      width: clamp(92px, 24vw, 128px); border-right: 1px solid var(--line); text-align: center;
+    }
+    .grammar-word:last-child { border-right: 0; }
+    .grammar-cell { display: grid; place-items: center; padding: 8px 6px; line-height: 1.3; overflow-wrap: anywhere; }
+    .grammar-token { color: var(--navy); font-family: Georgia, "Times New Roman", serif; font-size: 18px; font-weight: 700; }
+    .grammar-pos { color: var(--ocean); background: #f0f9f8; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 850; }
+    .grammar-meaning { color: var(--ink); font-size: 12px; }
+    .grammar-hidden { color: transparent; user-select: none; position: relative; }
+    .grammar-hidden::after { content: "____"; position: absolute; color: var(--coral); letter-spacing: .08em; }
+    .grammar-masked { color: transparent; user-select: none; position: relative; }
+    .grammar-masked::after { content: "****"; position: absolute; color: var(--muted); letter-spacing: .08em; }
+    .grammar-notes { padding: 15px 16px 16px; border-top: 1px solid var(--line); }
+    .grammar-notes h2 { margin: 0 0 8px; color: var(--navy); font-size: 15px; }
+    .grammar-pattern { margin: 0 0 7px; color: var(--ocean); font-weight: 850; line-height: 1.6; }
+    .grammar-explanation { margin: 0; color: var(--ink); font-size: 14px; line-height: 1.75; white-space: pre-line; }
+
     .grade-hint { display: none; margin: -4px 20px 10px; text-align: center; color: var(--muted); font-size: 13px; }
     .grade-controls { display: none; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px 12px; }
     .grade-controls.visible { display: grid; }
@@ -136,6 +168,8 @@
       .problem-controls { grid-template-columns: 1fr 1fr; }
       #nextProblem { grid-column: 1 / -1; }
       .prompt { padding-inline: 16px; }
+      .grammar-toolbar { align-items: stretch; }
+      .grammar-toggle, .pos-option { width: 100%; }
     }
     @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
   </style>
@@ -157,6 +191,20 @@
         <p class="japanese" id="japanese"></p>
         <div class="label">ENGLISH</div>
         <div class="english" id="english" aria-live="polite"></div>
+      </div>
+      <div class="grammar-area">
+        <div class="grammar-toolbar">
+          <button class="btn grammar-toggle" id="grammarToggle" type="button" aria-expanded="false">文法を表示</button>
+          <label class="pos-option" id="posOption"><input id="hidePos" type="checkbox"> 穴埋め時に品詞も隠す</label>
+        </div>
+        <section class="grammar-panel" id="grammarPanel" aria-label="単語の品詞と文法解説" hidden>
+          <div class="grammar-scroll"><div class="grammar-grid" id="grammarGrid"></div></div>
+          <div class="grammar-notes">
+            <h2>文法ポイント</h2>
+            <p class="grammar-pattern" id="grammarPoint"></p>
+            <p class="grammar-explanation" id="grammarExplanation"></p>
+          </div>
+        </section>
       </div>
       <div class="study-actions">
         <button class="answer-button" id="answerButton" type="button">答えを表示</button>
@@ -275,8 +323,106 @@
       let level = 1;
       let levels = questions.map(() => 1);
       let showAnswer = false;
+      let grammarVisible = false;
+      let hidePos = false;
 
       function wordsOf(text) { return text.trim().split(/\s+/); }
+      const wordDictionary = {
+        'excuse': ['動詞', '許す'], 'me': ['代名詞', '私を'], 'thank': ['動詞', '感謝する'],
+        'you': ['代名詞', 'あなた／あなたを'], 'so': ['副詞', 'とても'], 'much': ['副詞', 'とても'],
+        'could': ['助動詞', '～していただけますか'], 'help': ['動詞', '助ける'], 'where': ['疑問詞', 'どこ'],
+        'is': ['be動詞', '～である／～にある'], '～': ['置換語', '知りたいもの'], 'i': ['代名詞', '私'],
+        "don't": ['助動詞＋否定', '～しない'], 'understand': ['動詞', '理解する'], 'what': ['疑問詞', '何／何を'],
+        'does': ['助動詞', '～する'], 'that': ['代名詞', 'それ'], 'mean': ['動詞', '意味する'],
+        'this': ['代名詞・限定詞', 'これ／この'], 'ok': ['形容詞', '大丈夫な'], 'the': ['冠詞', 'その'],
+        'elevator': ['名詞', 'エレベーター'], 'b': ['固有名詞', 'B'], 'restaurant': ['名詞', 'レストラン'],
+        'restroom': ['名詞', 'トイレ'], 'my': ['所有格', '私の'], 'cabin': ['名詞', '客室'],
+        'which': ['疑問詞', 'どの'], 'deck': ['名詞', 'デッキ／階'], 'it': ['代名詞', 'それ'],
+        'on': ['前置詞', '～の上に／～で'], 'how': ['疑問詞', 'どのように'], 'do': ['助動詞', '～する'],
+        'get': ['動詞', '着く／得る'], 'there': ['副詞', 'そこへ'], 'way': ['名詞', '方向／道'], 'say': ['動詞', '言う'],
+        'again': ['副詞', 'もう一度'], 'speak': ['動詞', '話す'], 'more': ['副詞', 'もっと'],
+        'slowly': ['副詞', 'ゆっくり'], 'please': ['副詞', 'お願いします'], 'a': ['冠詞', '1つの'],
+        'table': ['名詞', 'テーブル'], 'for': ['前置詞', '～用の／～のために'], 'two': ['数詞', '2人'],
+        'can': ['助動詞', '～できますか'], 'we': ['代名詞', '私たち'], 'sit': ['動詞', '座る'],
+        'here': ['副詞', 'ここに'], 'see': ['動詞', '見る'], 'menu': ['名詞', 'メニュー'],
+        "i'll": ['代名詞＋助動詞', '私は～します'], 'have': ['動詞', 'いただく／持つ'], 'one': ['代名詞', 'もの'],
+        'same': ['代名詞', '同じもの'], 'some': ['限定詞', 'いくらかの'], 'water': ['名詞', '水'],
+        'recommend': ['動詞', 'おすすめする'], "that's": ['代名詞＋be動詞', 'それは～です'], 'all': ['代名詞', '全部'],
+        'was': ['be動詞', '～でした'], 'delicious': ['形容詞', 'おいしい'], 'beer': ['名詞', 'ビール'],
+        'coffee': ['名詞', 'コーヒー'], 'just': ['副詞', '～だけ'], 'no': ['限定詞', '～なしの'],
+        'ice': ['名詞', '氷'], 'non-alcoholic': ['形容詞', 'ノンアルコールの'], 'drinks': ['名詞', '飲み物'],
+        'charge': ['動詞', '請求する'], 'to': ['前置詞・不定詞', '～へ／～すること'], 'number': ['名詞', '番号'],
+        'one-oh-two': ['数詞', '102'], 'room': ['名詞', '部屋'], 'key': ['名詞', '鍵'],
+        "isn't": ['be動詞＋否定', '～していない'], 'working': ['動詞', '作動している'],
+        "can't": ['助動詞＋否定', '～できない'], 'open': ['動詞', '開ける'], 'door': ['名詞', 'ドア'],
+        "there's": ['there＋be動詞', '～があります'], 'problem': ['名詞', '問題'], 'with': ['前置詞', '～に関して'],
+        'shower': ['名詞', 'シャワー'], 'another': ['限定詞', 'もう1つの'], 'towel': ['名詞', 'タオル'],
+        'time': ['名詞', '時間／時刻'], 'leave': ['動詞', '出発する'], 'should': ['助動詞', '～すべき'],
+        'be': ['be動詞', '～である／いる'], 'back': ['副詞', '戻って'], 'meeting': ['名詞', '集合'],
+        'point': ['名詞', '場所／地点'], 'shuttle': ['名詞・形容詞', '送迎用の'], 'bus': ['名詞', 'バス'],
+        'go': ['動詞', '行く'], 'ship': ['名詞', '船'], 'long': ['形容詞・副詞', '長い／どのくらい'],
+        'take': ['動詞', '時間がかかる'], 'need': ['動詞', '必要とする'], 'lost': ['動詞', 'なくした'],
+        'find': ['動詞', '見つける'], 'think': ['動詞', '思う'], 'left': ['動詞', '置き忘れた'],
+        'phone': ['名詞', '電話／スマホ'], 'hi': ['間投詞', 'こんにちは'], 'good': ['形容詞', 'よい'],
+        'morning': ['名詞', '朝'], 'are': ['be動詞', '～である'], 'from': ['前置詞', '～から'],
+        "i'm": ['代名詞＋be動詞', '私は～です'], 'japan': ['固有名詞', '日本'], 'your': ['所有格', 'あなたの'],
+        'first': ['形容詞', '初めての'], 'cruise': ['名詞', 'クルーズ'], 'enjoying': ['動詞', '楽しんでいる'],
+        "it's": ['代名詞＋be動詞', 'それは～です'], 'great': ['形容詞', 'すばらしい'], 'nice': ['形容詞', 'よい'],
+        'day': ['名詞', '一日'], 'later': ['副詞', 'あとで']
+      };
+      const wordOverrides = {
+        'What does that mean?': [
+          { text: 'What', pos: '疑問詞', meaning: '何を' }, { text: 'does', pos: '助動詞', meaning: '～する' },
+          { text: 'that', pos: '代名詞', meaning: 'それ' }, { text: 'mean?', pos: '動詞', meaning: '意味する' }
+        ],
+        'Where is the elevator?': [
+          { text: 'Where', pos: '疑問詞', meaning: 'どこ' }, { text: 'is', pos: 'be動詞', meaning: '～にある' },
+          { text: 'the', pos: '冠詞', meaning: 'その' }, { text: 'elevator?', pos: '名詞', meaning: 'エレベーター' }
+        ]
+      };
+      function cleanWord(word) { return word.toLowerCase().replace(/^[“”"']+|[“”"'.,!?]+$/g, ''); }
+      function grammarGuide(en) {
+        if (en === 'What does that mean?') return ['What + does + 主語 + 動詞の原形?', 'does を使った疑問文なので、動詞は means ではなく原形の mean になります。'];
+        if (/^Where is\b/.test(en)) return ['Where + be動詞 + 主語?', '場所を尋ねる基本形です。主語が1つのものなので be動詞は is を使います。'];
+        if (/^Where are\b/.test(en)) return ['Where + be動詞 + 主語?', '場所や出身を尋ねる形です。主語が you なので be動詞は are を使います。'];
+        if (/^What time do\b/.test(en)) return ['What time + do + 主語 + 動詞の原形?', '時刻を尋ねる疑問文です。do の後ろは動詞の原形を置きます。'];
+        if (/^What time should\b/.test(en)) return ['What time + should + 主語 + 動詞の原形?', '「何時に～すべきですか」と確認する形です。should の後ろは動詞の原形です。'];
+        if (/^How long does\b/.test(en)) return ['How long + does + 主語 + 動詞の原形?', '所要時間を尋ねる形です。does の後ろなので take は原形になります。'];
+        if (/^How do\b/.test(en)) return ['How + do + 主語 + 動詞の原形?', '方法を尋ねる疑問文です。do の後ろは動詞の原形を置きます。'];
+        if (/^Could I\b/.test(en)) return ['Could + I + 動詞の原形 ...?', '丁寧にお願いする表現です。Could I have ...? は「～をいただけますか」という定番の形です。'];
+        if (/^Could you\b/.test(en)) return ['Could + you + 動詞の原形 ...?', '相手に丁寧にお願いする形です。助動詞 could の後ろは動詞の原形になります。'];
+        if (/^Can I\b/.test(en)) return ['Can + I + 動詞の原形 ...?', '許可や注文を伝える形です。can の後ろは動詞の原形を置きます。'];
+        if (/^Can we\b/.test(en)) return ['Can + we + 動詞の原形 ...?', '「私たちは～してもよいですか」と許可を尋ねる形です。'];
+        if (/^Do you\b/.test(en)) return ['Do + you + 動詞の原形 ...?', '一般動詞の疑問文です。Do を文頭に置き、後ろの動詞は原形にします。'];
+        if (/^Does this\b/.test(en)) return ['Does + this + 動詞の原形 ...?', 'this を主語にした一般動詞の疑問文です。does の後ろは go のように原形を使います。'];
+        if (/^Is (this|it)\b/.test(en)) return ['Is + 主語 + 補語 ...?', 'be動詞を文頭に出して「～ですか」と確認する疑問文です。'];
+        if (/^Are you\b/.test(en)) return ['Are + you + 補語／動詞-ing ...?', 'you を主語にした be動詞の疑問文です。動詞-ingなら「～していますか」を表します。'];
+        if (/^Which\b/.test(en)) return ['Which + 名詞 + be動詞 + 主語 ...?', 'which を名詞の前に置いて「どの～」かを尋ねます。'];
+        if (/^What (do|is)\b/.test(en)) return ['What + 疑問文の語順?', 'What を文頭に置き、物事や内容について尋ねる表現です。'];
+        if (/^I don't\b/.test(en)) return ['主語 + do not + 動詞の原形', '一般動詞を否定するときは do not を使い、その後ろを動詞の原形にします。'];
+        if (/^I can't\b/.test(en)) return ['主語 + cannot + 動詞の原形', '「～できません」という表現です。can の否定形の後ろは動詞の原形です。'];
+        if (/^I'll\b/.test(en)) return ['主語 + will + 動詞の原形', "I'll は I will の短縮形です。注文では「～にします」という意思を自然に伝えられます。"];
+        if (/^I'm\b/.test(en)) return ['主語 + be動詞 + 補語', "I'm は I am の短縮形です。出身や自分の状態を説明するときに使います。"];
+        if (/^There's\b/.test(en)) return ['There is + 名詞 ...', "There's は There is の短縮形で、「～があります」と問題や物の存在を伝えます。"];
+        if (/^(My|This|It|I think)\b/.test(en)) return ['主語 + 動詞／be動詞 + ...', '英語の基本語順は「主語のあとに動詞」です。まず誰・何についての文かを確認しましょう。'];
+        if (/^(Excuse me|Thank you|Good morning|Hi|Have a nice day|See you later|No ice|Just water|A table)\b/.test(en)) return ['会話で使う定型表現', '短い形のまま覚えると、必要な場面ですぐに口から出しやすくなります。'];
+        return ['疑問詞／助動詞 + 主語 + 動詞 ...', '語順と動詞の形に注目して、文全体をひとかたまりで覚えましょう。'];
+      }
+      function enrichQuestion(q) {
+        const tokens = wordsOf(q.en);
+        const generatedWords = tokens.map(text => {
+          const info = wordDictionary[cleanWord(text)] || ['未設定', '意味未設定'];
+          return { text, pos: info[0], meaning: info[1] };
+        });
+        const guide = grammarGuide(q.en);
+        return {
+          ...q,
+          words: Array.isArray(q.words) && q.words.length === tokens.length ? q.words : (wordOverrides[q.en] || generatedWords),
+          grammarPoint: q.grammarPoint || guide[0],
+          grammarExplanation: q.grammarExplanation || guide[1]
+        };
+      }
+      questions = questions.map(enrichQuestion);
       function randomWordOrder(text) {
         const indexes = wordsOf(text).map((_, i) => i);
         for (let i = indexes.length - 1; i > 0; i--) {
@@ -312,6 +458,8 @@
         position = restoredPosition >= 0 ? restoredPosition : 0;
         level = levels[order[position]] || 1;
         showAnswer = savedLearningState.showAnswer === true;
+        grammarVisible = savedLearningState.grammarVisible === true;
+        hidePos = savedLearningState.hidePos === true;
         const speed = String(savedLearningState.speed || '');
         if (['0.5', '0.65', '0.9'].includes(speed)) $('speedSelect').value = speed;
       }
@@ -328,7 +476,9 @@
           levels: levelMap,
           hiddenOrders: hiddenMap,
           speed: $('speedSelect').value,
-          showAnswer
+          showAnswer,
+          grammarVisible,
+          hidePos
         };
         try { localStorage.setItem('cruiseEnglishLearningState', JSON.stringify(state)); } catch {}
       }
@@ -337,6 +487,31 @@
       function hiddenIndexes(wordCount) {
         const count = Math.min(level, wordCount);
         return hiddenOrders[order[position]].slice(0, count);
+      }
+      function renderGrammar(q, hidden) {
+        $('grammarPanel').hidden = !grammarVisible;
+        $('grammarToggle').textContent = grammarVisible ? '文法を非表示' : '文法を表示';
+        $('grammarToggle').setAttribute('aria-expanded', String(grammarVisible));
+        $('posOption').classList.toggle('visible', grammarVisible);
+        $('hidePos').checked = hidePos;
+        const cells = q.words.map((word, i) => {
+          const column = document.createElement('div');
+          column.className = 'grammar-word';
+          const token = document.createElement('div');
+          token.className = 'grammar-cell grammar-token' + (hidden.has(i) && !showAnswer ? ' grammar-hidden' : '');
+          token.textContent = word.text;
+          const pos = document.createElement('div');
+          pos.className = 'grammar-cell grammar-pos' + (hidePos && hidden.has(i) && !showAnswer ? ' grammar-masked' : '');
+          pos.textContent = word.pos;
+          const meaning = document.createElement('div');
+          meaning.className = 'grammar-cell grammar-meaning';
+          meaning.textContent = word.meaning;
+          column.append(token, pos, meaning);
+          return column;
+        });
+        $('grammarGrid').replaceChildren(...cells);
+        $('grammarPoint').textContent = q.grammarPoint;
+        $('grammarExplanation').textContent = q.grammarExplanation;
       }
       function render() {
         const q = current();
@@ -357,6 +532,7 @@
         $('gradeHint').style.display = showAnswer ? 'block' : 'none';
         $('prevLevel').disabled = level <= 1;
         $('nextLevel').disabled = level >= words.length;
+        renderGrammar(q, hidden);
         saveLearningState();
       }
       function moveProblem(step) {
@@ -385,6 +561,8 @@
         moveProblem(1);
       }
       $('answerButton').addEventListener('click', () => { showAnswer = !showAnswer; render(); });
+      $('grammarToggle').addEventListener('click', () => { grammarVisible = !grammarVisible; render(); });
+      $('hidePos').addEventListener('change', event => { hidePos = event.target.checked; render(); });
       $('speakButton').addEventListener('click', speakCurrentSentence);
       $('speakButton').disabled = !('speechSynthesis' in window);
       $('speedSelect').addEventListener('change', saveLearningState);
@@ -403,7 +581,7 @@
         const en = $('newEnglish').value.trim();
         const ja = $('newJapanese').value.trim();
         if (!en || !ja) return;
-        const item = { en, ja };
+        const item = enrichQuestion({ en, ja });
         questions.push(item); order.push(questions.length - 1); levels.push(1); hiddenOrders.push(randomWordOrder(en));
         try { localStorage.setItem('cruiseEnglishSentences', JSON.stringify(questions.slice(defaults.length))); } catch {}
         position = order.length - 1; level = 1; showAnswer = false;
