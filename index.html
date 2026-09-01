@@ -109,7 +109,7 @@
     .grammar-scroll { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
     .grammar-grid { display: flex; min-width: max-content; }
     .grammar-word {
-      display: grid; grid-template-rows: minmax(48px, auto) minmax(46px, auto) minmax(48px, auto);
+      display: grid; grid-auto-rows: minmax(48px, auto);
       width: clamp(92px, 24vw, 128px); border-right: 1px solid var(--line); text-align: center;
     }
     .grammar-word:last-child { border-right: 0; }
@@ -117,6 +117,11 @@
     .grammar-token { color: var(--navy); font-family: Georgia, "Times New Roman", serif; font-size: 18px; font-weight: 700; }
     .grammar-pos { color: var(--ocean); background: #f0f9f8; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 850; }
     .grammar-meaning { color: var(--ink); font-size: 12px; }
+    .grammar-role { color: #72512a; background: #fff8e9; border-top: 1px solid var(--line); font-size: 12px; font-weight: 850; }
+    .sentence-info { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px; border-top: 1px solid var(--line); background: #fffdf8; }
+    .sentence-info[hidden] { display: none; }
+    .sentence-badge { flex: 1; min-width: 180px; padding: 10px 12px; border: 1px solid #eadfc9; border-radius: 11px; color: var(--ink); font-size: 13px; line-height: 1.5; }
+    .sentence-badge strong { display: block; margin-bottom: 2px; color: #8a6435; font-size: 11px; letter-spacing: .08em; }
     .grammar-hidden { color: transparent; user-select: none; position: relative; }
     .grammar-hidden::after { content: "____"; position: absolute; color: var(--coral); letter-spacing: .08em; }
     .grammar-masked { color: transparent; user-select: none; position: relative; }
@@ -196,11 +201,16 @@
       <div class="grammar-area">
         <div class="grammar-toolbar">
           <button class="btn grammar-toggle" id="grammarToggle" type="button" aria-expanded="false">品詞を表示</button>
+          <button class="btn grammar-toggle" id="roleToggle" type="button" aria-expanded="false">役割・時制を表示</button>
           <button class="btn grammar-toggle" id="grammarPointToggle" type="button" aria-expanded="false">文法ポイントを表示</button>
           <label class="pos-option" id="posOption"><input id="hidePos" type="checkbox"> 穴埋め時に品詞も隠す</label>
         </div>
-        <section class="grammar-panel" id="grammarPanel" aria-label="単語の品詞と意味" hidden>
+        <section class="grammar-panel" id="grammarPanel" aria-label="単語の品詞・役割・意味" hidden>
           <div class="grammar-scroll"><div class="grammar-grid" id="grammarGrid"></div></div>
+          <div class="sentence-info" id="sentenceInfo" hidden>
+            <div class="sentence-badge"><strong>時制</strong><span id="tenseText"></span></div>
+            <div class="sentence-badge"><strong>文の種類</strong><span id="sentenceTypeText"></span></div>
+          </div>
         </section>
         <section class="grammar-notes" id="grammarNotesPanel" aria-label="文法ポイントと解説" hidden>
           <h2>文法ポイント</h2>
@@ -371,6 +381,7 @@
       let levels = questions.map(() => 1);
       let showAnswer = false;
       let grammarVisible = false;
+      let roleVisible = false;
       let grammarPointVisible = false;
       let hidePos = false;
 
@@ -481,6 +492,61 @@
         if (/^(Excuse me|Thank you|Good morning|Hi|Have a nice day|See you later|No ice|Just water|A table)\b/.test(en)) return ['会話で使う定型表現', '短い形のまま覚えると、必要な場面ですぐに口から出しやすくなります。'];
         return ['疑問詞／助動詞 + 主語 + 動詞 ...', '語順と動詞の形に注目して、文全体をひとかたまりで覚えましょう。'];
       }
+      const roleOverrides = {
+        'What does that mean?': ['疑問語・目的語', '疑問文を作る助動詞', '主語', '述語動詞'],
+        'Where is the elevator?': ['場所を尋ねる疑問語', '述語（be動詞）', '名詞を限定', '主語の中心語']
+      };
+      function inferRoles(words, en) {
+        const imperative = /^(Cut|Slice|Chop|Peel|Cook|Fry|Boil|Stir|Add|Taste|Wash|Rinse|Please)\b/.test(en);
+        const question = en.endsWith('?');
+        return words.map((word, i) => {
+          const key = cleanWord(word.text);
+          const pos = word.pos;
+          const previous = i > 0 ? cleanWord(words[i - 1].text) : '';
+          if (['what', 'where', 'how', 'which'].includes(key)) return '疑問語';
+          if (i === 0 && imperative) return key === 'please' ? '依頼を丁寧にする語' : '述語動詞';
+          if (['could', 'can', 'do', 'does', 'should', 'would'].includes(key)) return '助動詞';
+          if (["i'll"].includes(key)) return '主語＋助動詞';
+          if (["i'm", "it's", "that's"].includes(key)) return '主語＋be動詞';
+          if (key === "there's") return '存在を表す構文';
+          if (['is', 'are', 'was', 'be'].includes(key)) return '述語（be動詞）';
+          if (['the', 'a', 'an', 'some', 'no', 'another', 'my', 'your'].includes(key)) return '名詞を限定';
+          if (key === 'to') return previous === 'me' || previous === 'like' ? '不定詞を作る' : '前置詞句を作る';
+          if (pos.includes('前置詞')) return '前置詞句を作る';
+          if (pos.includes('副詞')) return '動詞・文を修飾';
+          if (pos.includes('形容詞')) return ['is', 'are', 'was', "it's", 'looks'].includes(previous) ? '補語' : '名詞を修飾／補語';
+          if (pos.includes('動詞')) {
+            if ((key.endsWith('ing') || key === 'working') && ['is', 'are', "i'm"].includes(previous)) return '述語の一部';
+            return i === 0 || imperative ? '述語動詞' : '述語動詞';
+          }
+          if (key === 'me') return '目的語';
+          if (['i', 'you', 'we', 'this', 'that', 'it'].includes(key)) {
+            if (i === 0 || ['could', 'can', 'do', 'does', 'should', 'would'].includes(previous)) return '主語';
+            return '目的語／代名詞';
+          }
+          if (pos.includes('名詞') || pos.includes('数詞')) {
+            if (/^(Where is|Which deck)/.test(en) && (i === words.length - 1 || key === 'deck')) return '主語の中心語';
+            if (imperative || ['have', 'get', 'see', 'add', 'wash', 'rinse', 'take', 'carry', 'found'].includes(previous)) return '目的語の中心語';
+            return question ? '主語・目的語の中心語' : '名詞句の中心語';
+          }
+          return '文を構成する語';
+        });
+      }
+      function sentenceAnalysis(en) {
+        const imperative = /^(Cut|Slice|Chop|Peel|Cook|Fry|Boil|Stir|Add|Taste|Wash|Rinse|Please)\b/.test(en);
+        if (/^Let's\b/.test(en)) return { tense: '時制なし', sentenceType: '提案・勧誘の文' };
+        if (imperative) return { tense: '時制なし', sentenceType: '命令文・依頼表現' };
+        if (/^I'll\b/.test(en)) return { tense: '未来表現（will）', sentenceType: '肯定文' };
+        if (/\b(working|enjoying)\b/.test(en) && /\b(am|is|are|'m)\b/i.test(en)) return { tense: '現在進行形', sentenceType: en.endsWith('?') ? '疑問文' : '肯定文' };
+        if (/\b(was|lost|left|found|got)\b/i.test(en)) return { tense: '過去形', sentenceType: en.endsWith('?') ? '疑問文' : '肯定文・定型表現' };
+        if (/^(Could|Would|Can|Should)\b/.test(en)) return { tense: '現在の依頼・可能・判断（助動詞）', sentenceType: '助動詞を使った疑問文' };
+        if (en.endsWith('?')) {
+          if (/^(Where|What|How|Which)\b/.test(en)) return { tense: '現在形', sentenceType: '疑問詞を使った疑問文' };
+          if (/^(Is|Are|Does|Do)\b/.test(en)) return { tense: '現在形', sentenceType: '疑問文' };
+          return { tense: '現在形', sentenceType: '疑問文' };
+        }
+        return { tense: '現在形', sentenceType: '肯定文・会話表現' };
+      }
       function enrichQuestion(q) {
         const tokens = wordsOf(q.en);
         const generatedWords = tokens.map(text => {
@@ -488,11 +554,16 @@
           return { text, pos: info[0], meaning: info[1] };
         });
         const guide = grammarGuide(q.en);
+        const baseWords = Array.isArray(q.words) && q.words.length === tokens.length ? q.words : (wordOverrides[q.en] || generatedWords);
+        const roles = Array.isArray(q.roles) && q.roles.length === tokens.length ? q.roles : (roleOverrides[q.en] || inferRoles(baseWords, q.en));
+        const analysis = sentenceAnalysis(q.en);
         return {
           ...q,
-          words: Array.isArray(q.words) && q.words.length === tokens.length ? q.words : (wordOverrides[q.en] || generatedWords),
+          words: baseWords.map((word, i) => ({ ...word, role: word.role || roles[i] })),
           grammarPoint: q.grammarPoint || guide[0],
-          grammarExplanation: q.grammarExplanation || guide[1]
+          grammarExplanation: q.grammarExplanation || guide[1],
+          tense: q.tense || analysis.tense,
+          sentenceType: q.sentenceType || analysis.sentenceType
         };
       }
       questions = questions.map(enrichQuestion);
@@ -532,6 +603,7 @@
         level = levels[order[position]] || 1;
         showAnswer = savedLearningState.showAnswer === true;
         grammarVisible = savedLearningState.grammarVisible === true;
+        roleVisible = savedLearningState.roleVisible === true;
         grammarPointVisible = savedLearningState.grammarPointVisible === true;
         hidePos = savedLearningState.hidePos === true;
         const speed = String(savedLearningState.speed || '');
@@ -552,6 +624,7 @@
           speed: $('speedSelect').value,
           showAnswer,
           grammarVisible,
+          roleVisible,
           grammarPointVisible,
           hidePos
         };
@@ -564,10 +637,13 @@
         return hiddenOrders[order[position]].slice(0, count);
       }
       function renderGrammar(q, hidden) {
-        $('grammarPanel').hidden = !grammarVisible;
+        $('grammarPanel').hidden = !(grammarVisible || roleVisible);
+        $('sentenceInfo').hidden = !roleVisible;
         $('grammarNotesPanel').hidden = !grammarPointVisible;
         $('grammarToggle').textContent = grammarVisible ? '品詞を非表示' : '品詞を表示';
         $('grammarToggle').setAttribute('aria-expanded', String(grammarVisible));
+        $('roleToggle').textContent = roleVisible ? '役割・時制を非表示' : '役割・時制を表示';
+        $('roleToggle').setAttribute('aria-expanded', String(roleVisible));
         $('grammarPointToggle').textContent = grammarPointVisible ? '文法ポイントを非表示' : '文法ポイントを表示';
         $('grammarPointToggle').setAttribute('aria-expanded', String(grammarPointVisible));
         $('posOption').classList.toggle('visible', grammarVisible);
@@ -578,16 +654,27 @@
           const token = document.createElement('div');
           token.className = 'grammar-cell grammar-token' + (hidden.has(i) && !showAnswer ? ' grammar-hidden' : '');
           token.textContent = word.text;
-          const pos = document.createElement('div');
-          pos.className = 'grammar-cell grammar-pos' + (hidePos && hidden.has(i) && !showAnswer ? ' grammar-masked' : '');
-          pos.textContent = word.pos;
-          const meaning = document.createElement('div');
-          meaning.className = 'grammar-cell grammar-meaning';
-          meaning.textContent = word.meaning;
-          column.append(token, pos, meaning);
+          column.append(token);
+          if (grammarVisible) {
+            const pos = document.createElement('div');
+            pos.className = 'grammar-cell grammar-pos' + (hidePos && hidden.has(i) && !showAnswer ? ' grammar-masked' : '');
+            pos.textContent = word.pos;
+            const meaning = document.createElement('div');
+            meaning.className = 'grammar-cell grammar-meaning';
+            meaning.textContent = word.meaning;
+            column.append(pos, meaning);
+          }
+          if (roleVisible) {
+            const role = document.createElement('div');
+            role.className = 'grammar-cell grammar-role';
+            role.textContent = word.role;
+            column.append(role);
+          }
           return column;
         });
         $('grammarGrid').replaceChildren(...cells);
+        $('tenseText').textContent = q.tense;
+        $('sentenceTypeText').textContent = q.sentenceType;
         $('grammarPoint').textContent = q.grammarPoint;
         $('grammarExplanation').textContent = q.grammarExplanation;
       }
@@ -640,6 +727,7 @@
       }
       $('answerButton').addEventListener('click', () => { showAnswer = !showAnswer; render(); });
       $('grammarToggle').addEventListener('click', () => { grammarVisible = !grammarVisible; render(); });
+      $('roleToggle').addEventListener('click', () => { roleVisible = !roleVisible; render(); });
       $('grammarPointToggle').addEventListener('click', () => { grammarPointVisible = !grammarPointVisible; render(); });
       $('hidePos').addEventListener('change', event => { hidePos = event.target.checked; render(); });
       $('speakButton').addEventListener('click', speakCurrentSentence);
