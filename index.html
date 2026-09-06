@@ -368,7 +368,42 @@
         { en: 'Would you like me to help you?', ja: 'お手伝いしましょうか？' },
         { en: 'Would you like me to open the door?', ja: 'ドアを開けましょうか？' },
         { en: 'Would you like me to carry your bag?', ja: 'バッグを持ちましょうか？' },
-        { en: 'Just a moment, please.', ja: 'ちょっと待ってください。' }
+        { en: 'Just a moment, please.', ja: 'ちょっと待ってください。' },
+        { en: 'Do you need help?', ja: '助けが必要ですか？' },
+        { en: 'Do you have a reservation?', ja: '予約はありますか？' },
+        { en: 'Do you understand?', ja: 'わかりますか？' },
+        { en: 'Do you know the way?', ja: '道はわかりますか？' },
+        { en: 'Can you help me?', ja: '手伝ってもらえますか？' },
+        { en: 'Can I sit here?', ja: 'ここに座ってもいいですか？' },
+        { en: 'Can you speak English?', ja: '英語を話せますか？' },
+        { en: 'Can I use this?', ja: 'これを使ってもいいですか？' },
+        { en: 'Could I sit here?', ja: 'こちらに座ってもよろしいですか？' },
+        { en: 'Could you open the window?', ja: '窓を開けていただけますか？' },
+        { en: 'I could swim when I was a child.', ja: '子どものころは泳げました。' },
+        { en: 'Would you like some water?', ja: 'お水はいかがですか？' },
+        { en: 'Would you like to sit here?', ja: 'こちらにお座りになりますか？' },
+        { en: 'Would you open the door, please?', ja: 'ドアを開けていただけますか？' },
+        { en: 'I would like some water.', ja: 'お水をいただきたいです。' },
+        { en: 'Do you have time?', ja: '時間はありますか？' },
+        { en: 'Do you work here?', ja: 'ここで働いていますか？' },
+        { en: 'Do you remember me?', ja: '私を覚えていますか？' },
+        { en: 'Do you want some coffee?', ja: 'コーヒーはいりますか？' },
+        { en: 'Do you take credit cards?', ja: 'クレジットカードは使えますか？' },
+        { en: 'Can we leave now?', ja: 'もう出発できますか？' },
+        { en: 'Can I charge my phone here?', ja: 'ここでスマホを充電してもいいですか？' },
+        { en: 'Can you show me the way?', ja: '道を教えてもらえますか？' },
+        { en: 'Can this bus take me to the ship?', ja: 'このバスで船まで行けますか？' },
+        { en: 'Can you wait a moment?', ja: '少し待ってもらえますか？' },
+        { en: 'Could I have the menu?', ja: 'メニューをいただけますか？' },
+        { en: 'Could we sit by the window?', ja: '窓側に座ってもよろしいですか？' },
+        { en: 'Could you write it down?', ja: '書いてもらえますか？' },
+        { en: 'Could you call a taxi?', ja: 'タクシーを呼んでもらえますか？' },
+        { en: 'Could you wait a moment?', ja: '少しお待ちいただけますか？' },
+        { en: 'Would you like some coffee?', ja: 'コーヒーはいかがですか？' },
+        { en: 'Would you like to come with us?', ja: '私たちと一緒に来ませんか？' },
+        { en: 'Would you please write it down?', ja: '書いていただけますか？' },
+        { en: 'Would you mind waiting here?', ja: 'ここで待っていただけますか？' },
+        { en: 'Would you help me with this?', ja: 'これを手伝っていただけますか？' }
       ];
       const $ = id => document.getElementById(id);
       const saved = (() => { try { return JSON.parse(localStorage.getItem('cruiseEnglishSentences') || '[]'); } catch { return []; } })();
@@ -410,7 +445,7 @@
         'was': ['be動詞', '～でした'], 'delicious': ['形容詞', 'おいしい'], 'beer': ['名詞', 'ビール'],
         'coffee': ['名詞', 'コーヒー'], 'just': ['副詞', '～だけ'], 'no': ['限定詞', '～なしの'],
         'ice': ['名詞', '氷'], 'non-alcoholic': ['形容詞', 'ノンアルコールの'], 'drinks': ['名詞', '飲み物'],
-        'charge': ['動詞', '請求する'], 'to': ['前置詞・不定詞', '～へ／～すること'], 'number': ['名詞', '番号'],
+        'charge': ['動詞', '請求する／充電する'], 'to': ['前置詞・不定詞', '～へ／～すること'], 'number': ['名詞', '番号'],
         'one-oh-two': ['数詞', '102'], 'room': ['名詞', '部屋'], 'key': ['名詞', '鍵'],
         "isn't": ['be動詞＋否定', '～していない'], 'working': ['動詞', '作動している'],
         "can't": ['助動詞＋否定', '～できない'], 'open': ['動詞', '開ける'], 'door': ['名詞', 'ドア'],
@@ -420,7 +455,7 @@
         'be': ['be動詞', '～である／いる'], 'back': ['副詞', '戻って'], 'meeting': ['名詞', '集合'],
         'point': ['名詞', '場所／地点'], 'shuttle': ['名詞・形容詞', '送迎用の'], 'bus': ['名詞', 'バス'],
         'go': ['動詞', '行く'], 'ship': ['名詞', '船'], 'long': ['形容詞・副詞', '長い／どのくらい'],
-        'take': ['動詞', '時間がかかる'], 'need': ['動詞', '必要とする'], 'lost': ['動詞', 'なくした'],
+        'take': ['動詞', '取る／連れていく／時間がかかる'], 'need': ['動詞', '必要とする'], 'lost': ['動詞', 'なくした'],
         'find': ['動詞', '見つける'], 'think': ['動詞', '思う'], 'left': ['動詞', '置き忘れた'],
         'phone': ['名詞', '電話／スマホ'], 'hi': ['間投詞', 'こんにちは'], 'good': ['形容詞', 'よい'],
         'morning': ['名詞', '朝'], 'are': ['be動詞', '～である'], 'from': ['前置詞', '～から'],
@@ -442,7 +477,16 @@
         'issue': ['名詞', '問題'], 'found': ['動詞', '見つけた'], 'cause': ['名詞', '原因'],
         'fixed': ['形容詞', '修正された'], 'try': ['動詞', '試す'], 'let': ['動詞', '～させる'],
         'confirm': ['動詞', '確認する'], 'would': ['助動詞', '～しましょうか'], 'like': ['動詞', '望む'],
-        'photo': ['名詞', '写真'], 'carry': ['動詞', '持つ／運ぶ'], 'bag': ['名詞', 'バッグ']
+        'photo': ['名詞', '写真'], 'carry': ['動詞', '持つ／運ぶ'], 'bag': ['名詞', 'バッグ'],
+        'reservation': ['名詞', '予約'], 'know': ['動詞', '知っている'], 'english': ['固有名詞', '英語'],
+        'use': ['動詞', '使う'], 'window': ['名詞', '窓'], 'swim': ['動詞', '泳ぐ'],
+        'when': ['接続詞', '～のとき'], 'child': ['名詞', '子ども'], 'now': ['副詞', '今'],
+        'work': ['動詞', '働く'], 'remember': ['動詞', '覚えている'], 'want': ['動詞', '欲しい'],
+        'credit': ['名詞・形容詞', '信用／クレジット'], 'cards': ['名詞', 'カード'], 'show': ['動詞', '見せる／教える'],
+        'wait': ['動詞', '待つ'], 'by': ['前置詞', '～のそばに'], 'write': ['動詞', '書く'],
+        'down': ['副詞', '書き留めて'], 'call': ['動詞', '呼ぶ／電話する'], 'taxi': ['名詞', 'タクシー'],
+        'come': ['動詞', '来る'], 'us': ['代名詞', '私たちと／私たちを'], 'mind': ['動詞', '気にする'],
+        'waiting': ['動名詞', '待つこと']
       };
       const wordOverrides = {
         'What does that mean?': [
@@ -463,18 +507,26 @@
         if (/^What time should\b/.test(en)) return ['What time + should + 主語 + 動詞の原形?', '「何時に～すべきですか」と確認する形です。should の後ろは動詞の原形です。'];
         if (/^How long does\b/.test(en)) return ['How long + does + 主語 + 動詞の原形?', '所要時間を尋ねる形です。does の後ろなので take は原形になります。'];
         if (/^How do\b/.test(en)) return ['How + do + 主語 + 動詞の原形?', '方法を尋ねる疑問文です。do の後ろは動詞の原形を置きます。'];
-        if (/^Could I\b/.test(en)) return ['Could + I + 動詞の原形 ...?', '丁寧にお願いする表現です。Could I have ...? は「～をいただけますか」という定番の形です。'];
-        if (/^Could you\b/.test(en)) return ['Could + you + 動詞の原形 ...?', '相手に丁寧にお願いする形です。助動詞 could の後ろは動詞の原形になります。'];
-        if (/^Can I\b/.test(en)) return ['Can + I + 動詞の原形 ...?', '許可や注文を伝える形です。can の後ろは動詞の原形を置きます。'];
+        if (/^Could I\b/.test(en)) return ['Could + I + 動詞の原形 ...?', '丁寧に許可を求める表現です。Can I ...? より控えめで丁寧です。ここでの could は過去ではありません。'];
+        if (/^Could you\b/.test(en)) return ['Could + you + 動詞の原形 ...?', '相手への丁寧な依頼です。Can you ...? より柔らかく聞こえます。助動詞の後ろは動詞の原形です。'];
+        if (/^Could we\b/.test(en)) return ['Could + we + 動詞の原形 ...?', '自分たちの許可を丁寧に求める表現です。Can we ...? より控えめで柔らかく聞こえます。'];
+        if (/^Can I\b/.test(en)) return ['Can + I + 動詞の原形 ...?', '許可を求める表現です。Could I ...? より直接的で、日常的な場面に向いています。can の後ろは動詞の原形です。'];
         if (/^Can we\b/.test(en)) return ['Can + we + 動詞の原形 ...?', '「私たちは～してもよいですか」と許可を尋ねる形です。'];
-        if (/^Can you\b/.test(en)) return ['Can + you + 動詞の原形 ...?', '相手に依頼する疑問文です。can の後ろは動詞の原形を置きます。'];
-        if (/^Would you like me to\b/.test(en)) return ['Would you like + 人 + to + 動詞の原形?', '「私が～しましょうか」と丁寧に申し出る定番表現です。to の後ろは動詞の原形になります。'];
-        if (/^Do you\b/.test(en)) return ['Do + you + 動詞の原形 ...?', '一般動詞の疑問文です。Do を文頭に置き、後ろの動詞は原形にします。'];
+        if (/^Can you\b/.test(en)) return ['Can + you + 動詞の原形 ...?', '能力を尋ねるか、日常的な依頼をする表現です。より丁寧に頼むなら Could you ...? を使います。'];
+        if (/^Can\b/.test(en)) return ['Can + 主語 + 動詞の原形 ...?', '能力や可能性を確認する疑問文です。can の後ろは主語、その次は動詞の原形になります。'];
+        if (/^Would you like me to\b/.test(en)) return ['Would you like + 人 + to + 動詞の原形?', '「私が～しましょうか」と丁寧に申し出る表現です。can の能力ではなく、相手の希望を尋ねています。'];
+        if (/^Would you like\b/.test(en)) return ['Would you like + 名詞／to + 動詞の原形?', '相手の希望を丁寧に尋ねる表現で、飲み物の提案や招待に使います。Do you like ...? は普段の好みを尋ねる表現です。'];
+        if (/^Would you mind\b/.test(en)) return ['Would you mind + 動詞-ing ...?', '「～していただけますか」と非常に丁寧に頼む形です。mind の後ろは動詞の原形ではなく動詞-ingを使います。'];
+        if (/^Would you please\b/.test(en)) return ['Would you please + 動詞の原形 ...?', 'please を加えた丁寧な依頼です。相手がしてくれる意思を柔らかく尋ねます。'];
+        if (/^Would you\b/.test(en)) return ['Would + you + 動詞の原形 ...?', '相手の意思を尋ねる丁寧な依頼です。Could you ...? と似ていますが、would は「してくれる意思」に焦点があります。'];
+        if (/^Do you\b/.test(en)) return ['Do + you + 動詞の原形 ...?', '事実・習慣・状態を尋ねる一般動詞の疑問文です。can のような「できる」という能力や許可の意味はありません。'];
         if (/^Does this\b/.test(en)) return ['Does + this + 動詞の原形 ...?', 'this を主語にした一般動詞の疑問文です。does の後ろは go のように原形を使います。'];
         if (/^Is (this|it)\b/.test(en)) return ['Is + 主語 + 補語 ...?', 'be動詞を文頭に出して「～ですか」と確認する疑問文です。'];
         if (/^Are you\b/.test(en)) return ['Are + you + 補語／動詞-ing ...?', 'you を主語にした be動詞の疑問文です。動詞-ingなら「～していますか」を表します。'];
         if (/^Which\b/.test(en)) return ['Which + 名詞 + be動詞 + 主語 ...?', 'which を名詞の前に置いて「どの～」かを尋ねます。'];
         if (/^What (do|is)\b/.test(en)) return ['What + 疑問文の語順?', 'What を文頭に置き、物事や内容について尋ねる表現です。'];
+        if (/^I could\b/.test(en)) return ['主語 + could + 動詞の原形', 'この could は can の過去形で、「以前は～できた」という過去の能力を表します。丁寧な依頼の could とは用法が異なります。'];
+        if (/^I would like\b/.test(en)) return ['主語 + would like + 名詞／to不定詞', '「～が欲しい／～したい」を丁寧に伝えます。want より丁寧で、would はここでは希望を柔らかくしています。'];
         if (/^I don't\b/.test(en)) return ['主語 + do not + 動詞の原形', '一般動詞を否定するときは do not を使い、その後ろを動詞の原形にします。'];
         if (/^I can't\b/.test(en)) return ['主語 + cannot + 動詞の原形', '「～できません」という表現です。can の否定形の後ろは動詞の原形です。'];
         if (/^Let's\b/.test(en)) return ["Let's + 動詞の原形", "Let's は Let us の短縮形で、「一緒に～しましょう」と誘う表現です。"]; 
@@ -519,7 +571,8 @@
             if ((key.endsWith('ing') || key === 'working') && ['is', 'are', "i'm"].includes(previous)) return '述語の一部';
             return i === 0 || imperative ? '述語動詞' : '述語動詞';
           }
-          if (key === 'me') return '目的語';
+          if (['me', 'us'].includes(key)) return '目的語';
+          if (key === 'waiting') return '動詞の目的語（動名詞）';
           if (['i', 'you', 'we', 'this', 'that', 'it'].includes(key)) {
             if (i === 0 || ['could', 'can', 'do', 'does', 'should', 'would'].includes(previous)) return '主語';
             return '目的語／代名詞';
@@ -537,6 +590,8 @@
         if (/^Let's\b/.test(en)) return { tense: '時制なし', sentenceType: '提案・勧誘の文' };
         if (imperative) return { tense: '時制なし', sentenceType: '命令文・依頼表現' };
         if (/^I'll\b/.test(en)) return { tense: '未来表現（will）', sentenceType: '肯定文' };
+        if (/^I could\b/.test(en)) return { tense: '過去の能力（could）', sentenceType: '助動詞を使った肯定文' };
+        if (/^I would like\b/.test(en)) return { tense: '現在の丁寧な希望（would）', sentenceType: '希望を伝える肯定文' };
         if (/\b(working|enjoying)\b/.test(en) && /\b(am|is|are|'m)\b/i.test(en)) return { tense: '現在進行形', sentenceType: en.endsWith('?') ? '疑問文' : '肯定文' };
         if (/\b(was|lost|left|found|got)\b/i.test(en)) return { tense: '過去形', sentenceType: en.endsWith('?') ? '疑問文' : '肯定文・定型表現' };
         if (/^(Could|Would|Can|Should)\b/.test(en)) return { tense: '現在の依頼・可能・判断（助動詞）', sentenceType: '助動詞を使った疑問文' };
